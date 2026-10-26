@@ -226,6 +226,20 @@ describe("contributorPage", () => {
     expect(html).toContain('<a href="/leaderboard/2026-10">Hacktoberfest 2026 leaderboard</a>');
   });
 
+  it("renders the prs link it is given, repos-qualified not org-wide (#101)", () => {
+    const reposLink = {
+      ...links,
+      prs: "https://github.com/search?" + new URLSearchParams({
+        q: ['is:pr', 'is:merged', 'author:ada', 'label:"hacktoberfest-accepted"',
+            "merged:2026-10-01..2026-10-31", "repo:codercops/chatcops", "repo:codercops/ogcops"].join(" "),
+        type: "pullrequests",
+      }),
+    };
+    const reposHtml = contributorPage({ program, row: row("ada", 4), rank: 1, of: 15, generatedAt }, reposLink, during);
+    expect(reposHtml).toContain(encodeURIComponent('repo:codercops/chatcops'));
+    expect(reposHtml).not.toContain(encodeURIComponent('org:codercops'));
+  });
+
   it("has what a share preview needs", () => {
     expect(html).toContain('<meta property="og:image" content="https://oss.example/leaderboard/2026-10/u/ada.png?v=4-1-15-running">');
     expect(html).toContain('<meta property="og:image:width" content="1200">');
@@ -314,7 +328,7 @@ describe("GET /leaderboard/{id}/u/{login}", () => {
     expect(html).toContain("https://bot.example/leaderboard/2026-10/u/Ada.png?v=2-1-2-");
     const prs = /href="(https:\/\/github\.com\/search\?[^"]+)"/.exec(html)![1]!.replace(/&amp;/g, "&");
     expect(new URL(prs).searchParams.get("q")).toBe(
-      'org:codercops is:pr is:merged author:Ada label:"hacktoberfest-accepted" merged:2026-10-01..2026-10-31'
+      'is:pr is:merged author:Ada label:"hacktoberfest-accepted" merged:2026-10-01..2026-10-31 repo:codercops/chatcops repo:codercops/ogcops repo:codercops/toolbelt'
     );
   });
 

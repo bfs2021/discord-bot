@@ -321,7 +321,7 @@ async function handleContributor(
     return response;
   }
 
-  const prsQuery = `org:${cfg.org} is:pr is:merged author:${row.login} label:"${program.label}" merged:${program.start.toISOString().slice(0, 10)}..${program.end.toISOString().slice(0, 10)}`;
+  const prsQuery = ["is:pr","is:merged",`author:${row.login}`,`label:"${program.label}"`,`merged:${program.start.toISOString().slice(0, 10)}..${program.end.toISOString().slice(0, 10)}`,...program.repos.map((r) => `repo:${cfg.org}/${r}`),].join(" ");
   const html = contributorPage(
     { program, row, rank, of, generatedAt: board.generatedAt },
     {
